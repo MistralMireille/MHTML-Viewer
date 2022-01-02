@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menuSavePage"
+        android:title="Save Page"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/menuHide"
+        android:title="Hide Menu"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/menuRemoveElements"
+        android:title="Remove Elements"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/menuOpenFileInBrowser"
+        android:title="Open File in Browser"
+        app:showAsAction="never"/>
+</menu>
