@@ -42,6 +42,7 @@ public class SettingsActivity extends AppCompatActivity {
                 final EditText input = new EditText(SettingsActivity.this);
                 builder.setView(input);
                 builder.setTitle("Type the path of the folder:");
+                builder.setMessage("This folder and its sub-folders will populate the list of directories if they contain an mhtml file.");
 
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
@@ -74,6 +75,7 @@ public class SettingsActivity extends AppCompatActivity {
                 final EditText input = new EditText(SettingsActivity.this);
                 builder.setView(input);
                 builder.setTitle("Type the path of the folder:");
+                builder.setMessage("Determines where the mhtml file will be saved from pressing \"Save Page\" in the browser.");
 
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
