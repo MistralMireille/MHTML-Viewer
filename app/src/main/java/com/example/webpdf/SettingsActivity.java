@@ -10,6 +10,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +21,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     LinearLayout settingsDefaultCrawlerFolder;
     LinearLayout settingsDefaultSaveLocationFolder;
+    LinearLayout settingsSortMethod;
     Toolbar toolbarMenu;
 
     @Override
@@ -30,6 +33,7 @@ public class SettingsActivity extends AppCompatActivity {
         toolbarMenu = findViewById(R.id.toolbarMenu);
         settingsDefaultCrawlerFolder = findViewById(R.id.settingsDefaultCrawlerFolder);
         settingsDefaultSaveLocationFolder = findViewById(R.id.settingsDefaultSaveLocationFolder);
+        settingsSortMethod = findViewById(R.id.settingsSortMethod);
 
         setSupportActionBar(toolbarMenu);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -98,6 +102,46 @@ public class SettingsActivity extends AppCompatActivity {
                 builder.show();
             }
         });
+
+        ((TextView) settingsSortMethod.getChildAt(1)).setText(getSharedPreferences("settings", MODE_PRIVATE).getString("settingsSortMethod", "alphanumeric case insensitive"));
+        settingsSortMethod.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+                final RadioGroup input = new RadioGroup(SettingsActivity.this);
+                String[] sortingMethods = new String[]{"alphanumeric", "alphabetic", "alphanumeric case insensitive", "alphabetic case insensitive"};
+                for(String s : sortingMethods) {
+                    RadioButton option = new RadioButton(SettingsActivity.this);
+                    option.setText(s);
+                    input.addView(option);
+                }
+                builder.setView(input);
+                builder.setTitle("Sort");
+                builder.setMessage("Select what method to sort files with. Folders are always sorted alphabetically.");
+
+                builder.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        RadioButton selectedButton = input.findViewById(input.getCheckedRadioButtonId());
+                        if(selectedButton != null) {
+                            getSharedPreferences("settings", MODE_PRIVATE).edit().putBoolean("folderUpdateNeeded", true).apply();
+                            getSharedPreferences("settings", MODE_PRIVATE).edit().putString("settingsSortMethod", selectedButton.getText().toString()).apply();
+                            ((TextView) settingsSortMethod.getChildAt(1)).setText(selectedButton.getText());
+                        }
+                    }
+                });
+                builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do nothing.
+                    }
+                });
+
+                builder.show();
+            }
+        });
+
+
     }
 
     @Override

@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void alphaNumericSort(ArrayList<String> al) {
+    private void alphaNumericSort(ArrayList<String> al, final boolean caseSensitive) {
         // Get Longest Digit Sequence out of all Strings in al.
         int longestNumberSequence = 0;
         for(String s : al) {
@@ -244,6 +244,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 o2Numbers += o2.substring(o2StringStart);
 
+                if(!caseSensitive) {
+                    o1Numbers = o1Numbers.toLowerCase();
+                    o2Numbers = o2Numbers.toLowerCase();
+                }
+
                 return o1Numbers.compareTo(o2Numbers);
             }
        });
@@ -259,7 +264,32 @@ public class MainActivity extends AppCompatActivity {
             String[] splitString = s.split("/");
             listTitles.add(splitString[splitString.length - 1]);
         }
-        alphaNumericSort(listTitles);
+
+        switch(getSharedPreferences("settings", MODE_PRIVATE).getString("settingsSortMethod", "alphanumeric case insensitive")) {
+            case "alphanumeric":
+                alphaNumericSort(listTitles, true);
+                break;
+            case "alphabetic":
+                listTitles.sort(new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return o1.compareTo(o2);
+                    }
+                });
+                break;
+            case "alphanumeric case insensitive":
+                alphaNumericSort(listTitles, false);
+                break;
+            case "alphabetic case insensitive":
+                listTitles.sort(new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return o1.toLowerCase().compareTo(o2.toLowerCase());
+                    }
+                });
+                break;
+        }
+
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.list_entry, R.id.listEntryTitle, listTitles);
 
         mhtList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -402,6 +432,7 @@ public class MainActivity extends AppCompatActivity {
         if(getSharedPreferences("settings", MODE_PRIVATE).getBoolean("folderUpdateNeeded", false)) {
             getSharedPreferences("settings", MODE_PRIVATE).edit().putBoolean("folderUpdateNeeded", false).apply();
             if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                folderBackButton.callOnClick();
                 createFolders();
             }
         }
