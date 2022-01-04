@@ -207,7 +207,7 @@ public class BrowserActivity extends AppCompatActivity {
                                 if(value == null) {
                                     Toast.makeText(BrowserActivity.this, "Failed to save page.", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    getSharedPreferences("settings", MODE_PRIVATE).edit().putBoolean("folderUpdateNeeded", true).apply();
+                                    getSharedPreferences("settings", MODE_PRIVATE).edit().putString("updateNeeded", "folders").apply();
                                     Toast.makeText(BrowserActivity.this, "Saved " + value, Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -246,7 +246,7 @@ public class BrowserActivity extends AppCompatActivity {
                             if(value == null) {
                                 Toast.makeText(BrowserActivity.this, "Failed to save page.", Toast.LENGTH_SHORT).show();
                             } else {
-                                getSharedPreferences("settings", MODE_PRIVATE).edit().putBoolean("folderUpdateNeeded", true).apply();
+                                getSharedPreferences("settings", MODE_PRIVATE).edit().putString("updateNeeded", "folders").apply();
                                 Toast.makeText(BrowserActivity.this, "Saved " + value, Toast.LENGTH_SHORT).show();
                             }
                         }

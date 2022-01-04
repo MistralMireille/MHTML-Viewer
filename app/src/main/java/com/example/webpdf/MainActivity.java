@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout folderLayout;
     ImageButton folderBackButton;
     TextView noPermissionsTextView;
+    String currentDirectory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +61,14 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        getSharedPreferences("settings", MODE_PRIVATE).edit().putBoolean("folderUpdateNeeded", false).apply();
+        getSharedPreferences("settings", MODE_PRIVATE).edit().putString("updateNeeded", "none").apply();
 
         toolbarMenu = findViewById(R.id.toolbarMenu);
         mhtList = findViewById(R.id.mhtList);
         folderLayout = findViewById(R.id.folderLayout);
         folderBackButton = findViewById(R.id.folderBackButton);
         noPermissionsTextView = findViewById(R.id.noPermissionsTextView);
+        currentDirectory = "";
 
         setSupportActionBar(toolbarMenu);
 
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         folderBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                currentDirectory = "";
                 mhtList.setVisibility(View.GONE);
                 ((ScrollView) folderLayout.getParent()).setVisibility(View.VISIBLE);
             }
@@ -143,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
             b.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    currentDirectory = f.getAbsolutePath();
                     ((ScrollView) folderLayout.getParent()).setVisibility(View.GONE);
                     populateListViewByDirectory(f.getAbsolutePath());
                     mhtList.setVisibility(View.VISIBLE);
@@ -429,11 +433,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if(getSharedPreferences("settings", MODE_PRIVATE).getBoolean("folderUpdateNeeded", false)) {
-            getSharedPreferences("settings", MODE_PRIVATE).edit().putBoolean("folderUpdateNeeded", false).apply();
-            if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                folderBackButton.callOnClick();
-                createFolders();
+
+        if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            switch(getSharedPreferences("settings", MODE_PRIVATE).getString("updateNeeded", "none")) {
+                case "files":
+                    getSharedPreferences("settings", MODE_PRIVATE).edit().putString("updateNeeded", "none").apply();
+                    if(!currentDirectory.equals("")) {
+                        populateListViewByDirectory(currentDirectory);
+                    }
+                    break;
+                case "folders":
+                    getSharedPreferences("settings", MODE_PRIVATE).edit().putString("updateNeeded", "none").apply();
+                    folderBackButton.callOnClick();
+                    createFolders();
+                    break;
             }
         }
     }
