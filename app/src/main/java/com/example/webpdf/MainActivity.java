@@ -99,7 +99,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(sendIntent);
             }
         } else if(Intent.ACTION_VIEW.equals(action) && type != null) {
-            File f = new File(intent.getData().getPath().substring(14));
+            String path = intent.getData().getPath().replaceFirst("/external_files/", "/storage/emulated/0/");
+            File f = new File(path);
             if(f.exists()) {
                 Intent sendIntent = new Intent(this, BrowserActivity.class);
                 sendIntent.putExtra("address", "file:///" + f.getAbsolutePath());
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(sendIntent);
                 finish();
             } else {
-                Toast.makeText(this, "Could not find the file to open.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Could not find the file at: " + path, Toast.LENGTH_LONG).show();
             }
         }
     }
