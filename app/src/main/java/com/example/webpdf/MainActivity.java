@@ -190,14 +190,21 @@ public class MainActivity extends AppCompatActivity {
         // Get Longest Digit Sequence out of all Strings in al.
         int longestNumberSequence = 0;
         for(String s : al) {
-            for(int i = 0; i < s.length(); i++) {
+            int i = 0;
+            while(i < s.length()) {
                 if(Character.isDigit(s.charAt(i))) {
-                    longestNumberSequence = 1;
-                    int j = i;
-                    while(j < s.length() && Character.isDigit(s.charAt(j))) {
-                        longestNumberSequence += 1;
-                        j += 1;
+                    int numberSequence = 1;
+                    i += 1;
+
+                    while(i < s.length() && Character.isDigit(s.charAt(i))) {
+                        numberSequence += 1;
+                        i += 1;
                     }
+                    if(numberSequence > longestNumberSequence) {
+                        longestNumberSequence = numberSequence;
+                    }
+                } else {
+                    i += 1;
                 }
             }
         }
