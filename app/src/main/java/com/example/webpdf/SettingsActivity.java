@@ -53,7 +53,6 @@ public class SettingsActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         File directory = new File(input.getText().toString());
                         if(directory.exists()) {
-                            getSharedPreferences("settings", MODE_PRIVATE).edit().putString("updateNeeded", "folders").apply();
                             getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultCrawlerFolder", directory.getAbsolutePath()).apply();
                             ((TextView) settingsDefaultCrawlerFolder.getChildAt(1)).setText(directory.getAbsolutePath());
                         } else {
@@ -124,7 +123,6 @@ public class SettingsActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         RadioButton selectedButton = input.findViewById(input.getCheckedRadioButtonId());
                         if(selectedButton != null) {
-                            getSharedPreferences("settings", MODE_PRIVATE).edit().putString("updateNeeded", "files").apply();
                             getSharedPreferences("settings", MODE_PRIVATE).edit().putString("settingsSortMethod", selectedButton.getText().toString()).apply();
                             ((TextView) settingsSortMethod.getChildAt(1)).setText(selectedButton.getText());
                         }

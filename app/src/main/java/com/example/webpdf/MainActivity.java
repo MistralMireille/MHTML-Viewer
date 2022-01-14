@@ -443,18 +443,10 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            switch(getSharedPreferences("settings", MODE_PRIVATE).getString("updateNeeded", "none")) {
-                case "files":
-                    getSharedPreferences("settings", MODE_PRIVATE).edit().putString("updateNeeded", "none").apply();
-                    if(!currentDirectory.equals("")) {
-                        populateListViewByDirectory(currentDirectory);
-                    }
-                    break;
-                case "folders":
-                    getSharedPreferences("settings", MODE_PRIVATE).edit().putString("updateNeeded", "none").apply();
-                    folderBackButton.callOnClick();
-                    createFolders();
-                    break;
+            if(!currentDirectory.equals("")) {
+                populateListViewByDirectory(currentDirectory);
+            } else {
+                createFolders();
             }
         }
     }
