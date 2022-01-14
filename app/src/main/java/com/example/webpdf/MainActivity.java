@@ -444,10 +444,14 @@ public class MainActivity extends AppCompatActivity {
 
         if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             if(!currentDirectory.equals("")) {
-                populateListViewByDirectory(currentDirectory);
-            } else {
-                createFolders();
+                File folder = new File(currentDirectory);
+                if(folder.exists() && folder.isDirectory()) {
+                    populateListViewByDirectory(currentDirectory);
+                } else {
+                    folderBackButton.callOnClick(); // if the folder doesn't exists anymore, we go back to the directories.
+                }
             }
+            createFolders();
         }
     }
 }
