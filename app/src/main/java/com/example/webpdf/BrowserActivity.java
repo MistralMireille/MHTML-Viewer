@@ -80,6 +80,7 @@ public class BrowserActivity extends AppCompatActivity {
         soleWebView.getSettings().setAllowContentAccess(false);
         soleWebView.getSettings().setGeolocationEnabled(false);
         soleWebView.getSettings().setAllowFileAccess(false);
+        soleWebView.getSettings().setUserAgentString(soleWebView.getSettings().getUserAgentString().replace("; wv", "")); // android studio developer pages 403 when they see it's a webview. It checks for wv to see if it's a webview, so I got rid of it.
 
         soleWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
