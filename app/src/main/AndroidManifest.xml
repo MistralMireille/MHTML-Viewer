@@ -32,7 +32,7 @@
                 <data android:scheme="file" android:host="*" android:pathPattern=".*\\.mht" android:mimeType="*/*" />
             </intent-filter>
         </activity>
-        <activity android:name=".BrowserActivity">
+        <activity android:name=".BrowserActivity" android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
                 <category android:name="android.intent.category.DEFAULT"/>
