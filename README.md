@@ -1,6 +1,6 @@
 # MHTML-Viewer
 
-An Android App that lets you view and save mhtml files. Uses WebView's saveWebArchive method.
+An Android App without ads that lets you view and save mhtml files. Uses WebView's saveWebArchive method.
 
 ### Permissions
 
