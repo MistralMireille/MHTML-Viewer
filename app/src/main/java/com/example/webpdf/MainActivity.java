@@ -18,14 +18,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.ValueCallback;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +36,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -332,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
                         File filePath = new File(directoryPath + "/" + newFileName + ".mht");
                         if(!filePath.exists()) {
                             try {
-                                String[] blobReplacements = new String[]{"b(=\\r?\\n)lob:(http)", "bl(=\\r?\\n)ob:(http)", "blo(=\\r?\\n)b:(http)", "blob(=\\r?\\n):(http)", "blob:(=\\r?\\nhtt)(p)", "blob:(h=\\r?\\ntt)(p)", "blob:(ht=\\r?\\ntt)(p)", "blob:(htt=\\r?\\n)(p)", "blob:(htt)(p)"};
+                                String[] blobReplacements = new String[]{"b(=\\r?\\n)lob:(http)", "bl(=\\r?\\n)ob:(http)", "blo(=\\r?\\n)b:(http)", "blob(=\\r?\\n):(http)", "blob:(=\\r?\\nhtt)(p)", "blob:(h=\\r?\\ntt)(p)", "blob:(ht=\\r?\\nt)(p)", "blob:(htt=\\r?\\n)(p)", "blob:(htt)(p)"};
 
                                 InputStream fileData = new FileInputStream(new File(directoryPath + "/" + fileName));
                                 BufferedReader reader = new BufferedReader(new InputStreamReader(fileData));
