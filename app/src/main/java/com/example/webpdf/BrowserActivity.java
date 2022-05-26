@@ -105,8 +105,7 @@ public class BrowserActivity extends AppCompatActivity {
                     }
                 }
                 if(foundAd) {
-                    //return an empty response
-                    return new WebResourceResponse("text/plain", "utf8", new ByteArrayInputStream("".getBytes()));
+                    return new WebResourceResponse("text/plain", "utf8", new ByteArrayInputStream("".getBytes())); // return an empty response
                 } else {
                     return super.shouldInterceptRequest(view, request);
                 }
@@ -114,16 +113,20 @@ public class BrowserActivity extends AppCompatActivity {
 
             @Override
             public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
-                if(soleWebView.getSettings().getAllowFileAccess()) {
-                    soleWebView.getSettings().setAllowFileAccess(false);
-                }
-
-                if(view.getUrl().startsWith("file")) {
+                if(view.getUrl().startsWith("file:///")) {
                     urlEditText.setText(view.getTitle()); // File urls don't don't really need to be shown, especially since they're pretty hard to read. I think it's better to show the title so that the user can get some information about what local file they're on.
                 } else {
+                    view.getSettings().setAllowFileAccess(false); // might be unnecessary since shouldOverrideUrlLoading also sets it to false on non-local
                     urlEditText.setText(url);
                 }
                 super.doUpdateVisitedHistory(view, url, isReload);
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                // TODO - Enable changing between local files in the same folder.
+                view.getSettings().setAllowFileAccess(false);
+                return super.shouldOverrideUrlLoading(view, request);
             }
         });
 
@@ -168,7 +171,18 @@ public class BrowserActivity extends AppCompatActivity {
         if(intent.getStringExtra("local").equals("true")) {
             soleWebView.getSettings().setAllowFileAccess(true);
         }
-        soleWebView.loadUrl(address);
+        soleWebView.loadUrl(fixCharacters(address));
+    }
+
+    private String fixCharacters(String address) {
+        Character[] specialCharacters = new Character[] {'%', '?', '#'};
+        String[] replacements = new String[] {"%25", "%3f", "%23"};
+        for(int i = 0; i < specialCharacters.length; i++) {
+            if(address.contains(specialCharacters[i] + "")) {
+                address = address.replace(specialCharacters[i] + "", replacements[i]);
+            }
+        }
+        return address;
     }
 
     @Override
@@ -284,7 +298,7 @@ public class BrowserActivity extends AppCompatActivity {
                     if(sendIntent.resolveActivity(getPackageManager()) != null) {
                         startActivity(sendIntent);
                     }
-                } else if(soleWebView.getUrl().startsWith("file")) {
+                } else if(soleWebView.getUrl().startsWith("file:///")) {
                     File localFile = new File(Uri.parse(soleWebView.getUrl().split("//", 2)[1]).getPath());
                     if(localFile.exists()) {
                         try {

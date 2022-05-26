@@ -44,6 +44,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
                 final EditText input = new EditText(SettingsActivity.this);
+                input.setText(((TextView) settingsDefaultCrawlerFolder.getChildAt(1)).getText());
                 builder.setView(input);
                 builder.setTitle("Type the path of the folder:");
                 builder.setMessage("This folder and its sub-folders will populate the list of directories if they contain an mhtml file.");
@@ -77,6 +78,7 @@ public class SettingsActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
                 final EditText input = new EditText(SettingsActivity.this);
                 builder.setView(input);
+                input.setText(((TextView) settingsDefaultSaveLocationFolder.getChildAt(1)).getText());
                 builder.setTitle("Type the path of the folder:");
                 builder.setMessage("Determines where the mhtml file will be saved from pressing \"Save Page\" in the browser.");
 
