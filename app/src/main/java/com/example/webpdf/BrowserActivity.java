@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 public class BrowserActivity extends AppCompatActivity {
@@ -44,6 +45,7 @@ public class BrowserActivity extends AppCompatActivity {
     Toolbar toolbarMenu;
     EditText urlEditText;
     String preserveUrl;
+    HashMap<String, String> localFileMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,10 @@ public class BrowserActivity extends AppCompatActivity {
                 //If it's a local file, we don't have to check for ads.
                 if(request.getUrl().getScheme().equals("file")) {
                     return super.shouldInterceptRequest(view, request);
+                } else {
+                    if(view.getSettings().getAllowFileAccess()) {
+                        view.getSettings().setAllowFileAccess(false);
+                    }
                 }
 
                 String url = request.getUrl() + "";
@@ -124,9 +130,32 @@ public class BrowserActivity extends AppCompatActivity {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                // TODO - Enable changing between local files in the same folder.
-                view.getSettings().setAllowFileAccess(false);
-                return super.shouldOverrideUrlLoading(view, request);
+                if(view.getUrl().startsWith("file:///") && request.getUrl().getScheme().equals("cid") && request.getUrl().toString().endsWith("@mhtml.blink") && request.getUrl().getHost() == null) {
+                    return super.shouldOverrideUrlLoading(view, request);
+                } else if(view.getUrl().startsWith("file:///") && localFileMap.containsKey(request.getUrl().toString())) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(BrowserActivity.this);
+                    builder.setTitle("Local Version Found");
+                    builder.setMessage("Found a local version of this link. Would you like to load that instead?");
+                    builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            view.getSettings().setAllowFileAccess(true);
+                            view.loadUrl("file:///" + fixCharacters(localFileMap.get(request.getUrl().toString())));
+                        }
+                    });
+                    builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            view.getSettings().setAllowFileAccess(false);
+                            view.loadUrl(request.getUrl().toString());
+                        }
+                    });
+                    builder.show();
+                    return true; // returns true stopping the original url from loading.
+                } else {
+                    view.getSettings().setAllowFileAccess(false);
+                    return super.shouldOverrideUrlLoading(view, request);
+                }
             }
         });
 
@@ -168,8 +197,11 @@ public class BrowserActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String address = intent.getStringExtra("address");
         urlEditText.setText(address);
-        if(intent.getStringExtra("local").equals("true")) {
-            soleWebView.getSettings().setAllowFileAccess(true);
+
+        soleWebView.getSettings().setAllowFileAccess(intent.getStringExtra("local").equals("true"));
+
+        if(intent.getSerializableExtra("map") != null) {
+            localFileMap = (HashMap<String, String>) intent.getSerializableExtra("map");
         }
         soleWebView.loadUrl(fixCharacters(address));
     }

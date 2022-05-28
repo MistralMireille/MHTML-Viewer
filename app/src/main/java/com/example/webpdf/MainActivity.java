@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -263,13 +264,36 @@ public class MainActivity extends AppCompatActivity {
        });
     }
 
+    private String getMhtmlUrlFromFile(File f) throws IOException {
+        InputStream fileData = new FileInputStream(f);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(fileData));
+        for(int i = 0; i < 12; i++) {
+            reader.readLine();
+        }
+        String[] urlLine = reader.readLine().split(" ");
+        if(urlLine[0].equals("Content-Location:")) {
+            return urlLine[1];
+        } else {
+            return "Didn't find a url there.";
+        }
+    }
+
     private void populateListViewByDirectory(final String directoryPath) {
         mhtList.setAdapter(null); // clear listview
         ArrayList<String> listValues = new ArrayList<>();
         addFilesFromFolder(listValues, new File(directoryPath));
         ArrayList<String> listTitles = new ArrayList<>();
 
+        HashMap<String, String> fileUrlToFileName = new HashMap<>();
+
         for(String s : listValues) {
+            // Creating a hashmap with the url of the mht file (i.e. https://www.google.com) mapped to the local path of the mht file.
+            try {
+                fileUrlToFileName.put(getMhtmlUrlFromFile(new File(s)), s);
+            } catch(IOException e) {
+                fileUrlToFileName.put("IOException", s);
+            }
+
             String[] splitString = s.split("/");
             listTitles.add(splitString[splitString.length - 1]);
         }
@@ -311,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent sendIntent = new Intent(MainActivity.this, BrowserActivity.class);
                 sendIntent.putExtra("address", path);
                 sendIntent.putExtra("local", "true");
+                sendIntent.putExtra("map", fileUrlToFileName);
                 startActivity(sendIntent);
             }
         });
