@@ -110,7 +110,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
                 final RadioGroup input = new RadioGroup(SettingsActivity.this);
-                String[] sortingMethods = new String[]{"alphanumeric", "alphabetic", "alphanumeric case insensitive", "alphabetic case insensitive"};
+                String[] sortingMethods = new String[]{"alphanumeric", "alphabetic", "alphanumeric case insensitive", "alphabetic case insensitive", "numeric"};
                 for(String s : sortingMethods) {
                     RadioButton option = new RadioButton(SettingsActivity.this);
                     option.setText(s);

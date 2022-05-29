@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void alphaNumericSort(ArrayList<String> al, final boolean caseSensitive) {
+    private int getLongestNumberSequence(ArrayList<String> al) {
         // Get Longest Digit Sequence out of all Strings in al.
         int longestNumberSequence = 0;
         for(String s : al) {
@@ -207,7 +207,41 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        final int finalLongestNumberSequence = longestNumberSequence;
+        return longestNumberSequence;
+    }
+
+    private void numericSort(ArrayList<String> al) {
+        int longestNumberSequence = getLongestNumberSequence(al);
+
+        al.sort(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                String o1NumbersOnly = "";
+                Matcher m = Pattern.compile("\\d+").matcher(o1);
+                while(m.find()) {
+                    String replacementDigit = m.group();
+                    while(replacementDigit.length() < longestNumberSequence) {
+                        replacementDigit = "0" + replacementDigit;
+                    }
+                    o1NumbersOnly += replacementDigit + " ";
+                }
+
+                String o2NumbersOnly = "";
+                Matcher m2 = Pattern.compile("\\d+").matcher(o2);
+                while(m2.find()) {
+                    String replacementDigit = m2.group();
+                    while(replacementDigit.length() < longestNumberSequence) {
+                        replacementDigit = "0" + replacementDigit;
+                    }
+                    o2NumbersOnly += replacementDigit + " ";
+                }
+                return o1NumbersOnly.compareTo(o2NumbersOnly);
+            }
+        });
+    }
+
+    private void alphaNumericSort(ArrayList<String> al, final boolean caseSensitive) {
+        int longestNumberSequence = getLongestNumberSequence(al);
 
         al.sort(new Comparator<String>() {
             @Override
@@ -217,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                 Matcher m = Pattern.compile("\\d+").matcher(o1);
                 while(m.find()) {
                     String replacementDigit = m.group();
-                    while(replacementDigit.length() < finalLongestNumberSequence) {
+                    while(replacementDigit.length() < longestNumberSequence) {
                         replacementDigit = "0" + replacementDigit;
                     }
                     o1Locations.add(new Pair<>(new Pair<>(m.start(), m.end()), replacementDigit));
@@ -238,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
                 Matcher m2 = Pattern.compile("\\d+").matcher(o2);
                 while(m2.find()) {
                     String replacementDigit = m2.group();
-                    while(replacementDigit.length() < finalLongestNumberSequence) {
+                    while(replacementDigit.length() < longestNumberSequence) {
                         replacementDigit = "0" + replacementDigit;
                     }
                     o2Locations.add(new Pair<>(new Pair<>(m2.start(), m2.end()), replacementDigit));
@@ -261,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
 
                 return o1Numbers.compareTo(o2Numbers);
             }
-       });
+        });
     }
 
     private String getMhtmlUrlFromFile(File f) throws IOException {
@@ -320,6 +354,9 @@ public class MainActivity extends AppCompatActivity {
                         return o1.toLowerCase().compareTo(o2.toLowerCase());
                     }
                 });
+                break;
+            case "numeric":
+                numericSort(listTitles);
                 break;
         }
 
