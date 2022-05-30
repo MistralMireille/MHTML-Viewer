@@ -94,9 +94,14 @@ public class BrowserActivity extends AppCompatActivity {
                 if(request.getUrl().getScheme().equals("file")) {
                     return super.shouldInterceptRequest(view, request);
                 } else {
-                    if(view.getSettings().getAllowFileAccess()) {
-                        view.getSettings().setAllowFileAccess(false);
-                    }
+                    view.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(soleWebView.getSettings().getAllowFileAccess()) {
+                                soleWebView.getSettings().setAllowFileAccess(false);
+                            }
+                        }
+                    });
                 }
 
                 String url = request.getUrl() + "";
@@ -200,7 +205,7 @@ public class BrowserActivity extends AppCompatActivity {
 
         soleWebView.getSettings().setAllowFileAccess(intent.getStringExtra("local").equals("true"));
 
-        if(intent.getSerializableExtra("map") != null) {
+        if(intent.hasExtra("map")) {
             localFileMap = (HashMap<String, String>) intent.getSerializableExtra("map");
         }
         soleWebView.loadUrl(fixCharacters(address));

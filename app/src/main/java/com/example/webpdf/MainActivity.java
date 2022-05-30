@@ -301,14 +301,18 @@ public class MainActivity extends AppCompatActivity {
     private String getMhtmlUrlFromFile(File f) throws IOException {
         InputStream fileData = new FileInputStream(f);
         BufferedReader reader = new BufferedReader(new InputStreamReader(fileData));
-        for(int i = 0; i < 12; i++) {
-            reader.readLine();
-        }
+        reader.readLine();
         String[] urlLine = reader.readLine().split(" ");
-        if(urlLine[0].equals("Content-Location:")) {
+        if(urlLine[0].equals("Snapshot-Content-Location:")) {
             return urlLine[1];
         } else {
-            return "Didn't find a url there.";
+            for(int i = 0; i < 30; i++) {
+                String backupLine = reader.readLine();
+                if(backupLine.startsWith("Content-Location:")) {
+                    return backupLine.split(" ")[1];
+                }
+            }
+            return "Didn't find a url.";
         }
     }
 
