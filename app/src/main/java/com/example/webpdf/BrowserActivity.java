@@ -47,6 +47,8 @@ public class BrowserActivity extends AppCompatActivity {
     Toolbar toolbarMenu;
     EditText urlEditText;
     String preserveUrl;
+    MenuItem menuSavePage;
+    MenuItem menuRemoveElements;
     HashMap<String, String> localFileMap;
 
     @Override
@@ -127,9 +129,13 @@ public class BrowserActivity extends AppCompatActivity {
             @Override
             public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
                 if(view.getUrl().startsWith("file:///")) {
+                    menuSavePage.setVisible(false);
+                    menuRemoveElements.setVisible(false);
                     urlEditText.setText(view.getTitle()); // File urls don't don't really need to be shown, especially since they're pretty hard to read. I think it's better to show the title so that the user can get some information about what local file they're on.
                 } else {
                     view.getSettings().setAllowFileAccess(false); // might be unnecessary since shouldOverrideUrlLoading also sets it to false on non-local
+                    menuSavePage.setVisible(true);
+                    menuRemoveElements.setVisible(true);
                     urlEditText.setText(url);
                 }
                 super.doUpdateVisitedHistory(view, url, isReload);
@@ -237,6 +243,14 @@ public class BrowserActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.browser_menu, menu);
+
+        menuSavePage = menu.findItem(R.id.menuSavePage);
+        menuRemoveElements = menu.findItem(R.id.menuRemoveElements);
+        if(!getIntent().getStringExtra("local").equals("true")) {
+            menuSavePage.setVisible(true);
+            menuRemoveElements.setVisible(true);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
