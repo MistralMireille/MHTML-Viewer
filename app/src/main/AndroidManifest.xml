@@ -15,11 +15,6 @@
         android:theme="@style/TestingTheme">
         <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation" android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="text/plain"/>
-            </intent-filter>
-            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -27,9 +22,13 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="content" />
-                <data android:pathPattern=".*\\.mhtml" />
-                <data android:scheme="file" android:host="*" android:pathPattern=".*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.mht" android:mimeType="*/*" />
             </intent-filter>
         </activity>
         <activity android:name=".BrowserActivity" android:configChanges="orientation|screenSize|keyboardHidden">
@@ -40,11 +39,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".SettingsActivity" android:configChanges="orientation" android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="text/plain"/>
-            </intent-filter>
         </activity>
     </application>
 </manifest>

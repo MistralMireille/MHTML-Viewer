@@ -31,10 +31,12 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
@@ -278,6 +280,24 @@ public class BrowserActivity extends AppCompatActivity {
         builder.show();
     }
 
+    private String getMhtmlUrlFromFile(File f) throws IOException {
+        InputStream fileData = new FileInputStream(f);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(fileData));
+        reader.readLine();
+        String[] urlLine = reader.readLine().split(" ");
+        if(urlLine[0].equals("Snapshot-Content-Location:")) {
+            return urlLine[1];
+        } else {
+            for(int i = 0; i < 30; i++) {
+                String backupLine = reader.readLine();
+                if(backupLine.startsWith("Content-Location:")) {
+                    return backupLine.split(" ")[1];
+                }
+            }
+            return "Didn't find a url.";
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
@@ -336,16 +356,17 @@ public class BrowserActivity extends AppCompatActivity {
                         startActivity(sendIntent);
                     }
                 } else if(soleWebView.getUrl().startsWith("file:///")) {
-                    File localFile = new File(Uri.parse(soleWebView.getUrl().split("//", 2)[1]).getPath());
+                    File localFile = new File(Uri.decode(soleWebView.getUrl().substring(8)));
                     if(localFile.exists()) {
                         try {
-                            FileReader fileReader = new FileReader(localFile);
-                            BufferedReader bufferedReader = new BufferedReader(fileReader);
-                            bufferedReader.readLine();
-                            String urlString = bufferedReader.readLine().split(":", 2)[1].substring(1); // The second line in an mht file is "Snapshot-Content-Location: <url>".
-                            sendIntent.setData(Uri.parse(urlString));
-                            if(sendIntent.resolveActivity(getPackageManager()) != null) {
-                                startActivity(sendIntent);
+                            String urlString = getMhtmlUrlFromFile(localFile);
+                            if(urlString.equals("Didn't find a url.")) {
+                                Toast.makeText(BrowserActivity.this, urlString, Toast.LENGTH_LONG).show();
+                            } else {
+                                sendIntent.setData(Uri.parse(urlString));
+                                if(sendIntent.resolveActivity(getPackageManager()) != null) {
+                                    startActivity(sendIntent);
+                                }
                             }
                         } catch(IOException e) {
                             e.printStackTrace();
