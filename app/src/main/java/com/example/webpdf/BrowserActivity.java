@@ -143,28 +143,59 @@ public class BrowserActivity extends AppCompatActivity {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                String localLinkBehavior = getSharedPreferences("settings", MODE_PRIVATE).getString("defaultLocalLinkBehavior", "Ask User");
                 if(view.getUrl().startsWith("file:///") && request.getUrl().getScheme().equals("cid") && request.getUrl().toString().endsWith("@mhtml.blink") && request.getUrl().getHost() == null) {
                     return super.shouldOverrideUrlLoading(view, request);
                 } else if(view.getUrl().startsWith("file:///") && localFileMap.containsKey(request.getUrl().toString())) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(BrowserActivity.this);
-                    builder.setTitle("Local Version Found");
-                    builder.setMessage("Found a local version of this link. Would you like to load that instead?");
-                    builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
+                    switch(localLinkBehavior) {
+                        case "Ask User":
+                            AlertDialog.Builder builder = new AlertDialog.Builder(BrowserActivity.this);
+                            builder.setTitle("Local Version Found");
+                            builder.setMessage("Found a local version of this link. Would you like to load that instead?");
+                            builder.setPositiveButton("Load Local Version", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    view.getSettings().setAllowFileAccess(true);
+                                    view.loadUrl("file:///" + fixCharacters(localFileMap.get(request.getUrl().toString())));
+                                }
+                            });
+                            builder.setNegativeButton("Load Online Version", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    view.getSettings().setAllowFileAccess(false);
+                                    view.loadUrl(request.getUrl().toString());
+                                }
+                            });
+                            builder.show();
+                            return true; // returns true stopping the original url from loading.
+                        case "Local Only":
                             view.getSettings().setAllowFileAccess(true);
                             view.loadUrl("file:///" + fixCharacters(localFileMap.get(request.getUrl().toString())));
-                        }
-                    });
-                    builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            view.getSettings().setAllowFileAccess(false);
-                            view.loadUrl(request.getUrl().toString());
-                        }
-                    });
-                    builder.show();
-                    return true; // returns true stopping the original url from loading.
+                            return true;
+                        default:
+                            return true;
+                    }
+                } else if(view.getUrl().startsWith("file:///")) {
+                    if(localLinkBehavior.equals("Ask User")) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(BrowserActivity.this);
+                        builder.setTitle("No Local Versions Found");
+                        builder.setMessage("Do you want to load the online version? You won't be able to press back to go to the local version again.");
+                        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                view.getSettings().setAllowFileAccess(false);
+                                view.loadUrl(request.getUrl().toString());
+                            }
+                        });
+                        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // do nothing
+                            }
+                        });
+                        builder.show();
+                    }
+                    return true;
                 } else {
                     view.getSettings().setAllowFileAccess(false);
                     return super.shouldOverrideUrlLoading(view, request);
