@@ -47,8 +47,11 @@ public class BrowserActivity extends AppCompatActivity {
     Toolbar toolbarMenu;
     EditText urlEditText;
     String preserveUrl;
+    int localPageIndex;
     MenuItem menuSavePage;
     MenuItem menuRemoveElements;
+    MenuItem menuNextPage;
+    MenuItem menuPreviousPage;
     HashMap<String, String> localFileMap;
 
     @Override
@@ -136,6 +139,8 @@ public class BrowserActivity extends AppCompatActivity {
                     view.getSettings().setAllowFileAccess(false); // might be unnecessary since shouldOverrideUrlLoading also sets it to false on non-local
                     menuSavePage.setVisible(true);
                     menuRemoveElements.setVisible(true);
+                    menuNextPage.setVisible(false);
+                    menuPreviousPage.setVisible(false);
                     urlEditText.setText(url);
                 }
                 super.doUpdateVisitedHistory(view, url, isReload);
@@ -242,7 +247,10 @@ public class BrowserActivity extends AppCompatActivity {
         String address = intent.getStringExtra("address");
         urlEditText.setText(address);
 
-        soleWebView.getSettings().setAllowFileAccess(intent.getStringExtra("local").equals("true"));
+        if(intent.getStringExtra("local").equals("true")) {
+            soleWebView.getSettings().setAllowFileAccess(true);
+            localPageIndex = getIntent().getIntExtra("position", -1);
+        }
 
         if(intent.hasExtra("map")) {
             localFileMap = (HashMap<String, String>) intent.getSerializableExtra("map");
@@ -277,7 +285,12 @@ public class BrowserActivity extends AppCompatActivity {
 
         menuSavePage = menu.findItem(R.id.menuSavePage);
         menuRemoveElements = menu.findItem(R.id.menuRemoveElements);
-        if(!getIntent().getStringExtra("local").equals("true")) {
+        menuNextPage = menu.findItem(R.id.menuNextPage);
+        menuPreviousPage = menu.findItem(R.id.menuPreviousPage);
+        if(getIntent().getStringExtra("local").equals("true")) {
+            menuNextPage.setVisible(true);
+            menuPreviousPage.setVisible(true);
+        } else {
             menuSavePage.setVisible(true);
             menuRemoveElements.setVisible(true);
         }
@@ -418,8 +431,28 @@ public class BrowserActivity extends AppCompatActivity {
                         }
                     }
                 }
+                return true;
+            case R.id.menuNextPage:
+                if(localPageIndex != -1) {
+                    changeLocalPage(localPageIndex + 1);
+                }
+                return true;
+            case R.id.menuPreviousPage:
+                if(localPageIndex != -1) {
+                    changeLocalPage(localPageIndex - 1);
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void changeLocalPage(int position) {
+        ArrayList<String> orderedFileNames = (ArrayList<String>) getIntent().getSerializableExtra("filenames");
+        if(orderedFileNames != null && position > -1 && position < orderedFileNames.size()) {
+            int lastSlashIndex = soleWebView.getUrl().lastIndexOf("/");
+            soleWebView.loadUrl(fixCharacters(soleWebView.getUrl().substring(0, lastSlashIndex) + "/" + orderedFileNames.get(position)));
+            localPageIndex = position;
         }
     }
 

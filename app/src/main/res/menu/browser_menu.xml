@@ -20,4 +20,14 @@
         android:id="@+id/menuOpenFileInBrowser"
         android:title="Open File in Browser"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/menuNextPage"
+        android:title="Next Page"
+        android:visible="false"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/menuPreviousPage"
+        android:title="Previous Page"
+        android:visible="false"
+        app:showAsAction="never"/>
 </menu>

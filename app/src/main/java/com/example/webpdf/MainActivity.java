@@ -377,6 +377,8 @@ public class MainActivity extends AppCompatActivity {
                 sendIntent.putExtra("address", path);
                 sendIntent.putExtra("local", "true");
                 sendIntent.putExtra("map", fileUrlToFileName);
+                sendIntent.putExtra("filenames", listTitles);
+                sendIntent.putExtra("position", position);
                 startActivity(sendIntent);
             }
         });
