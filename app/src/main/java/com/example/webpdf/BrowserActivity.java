@@ -451,8 +451,10 @@ public class BrowserActivity extends AppCompatActivity {
         ArrayList<String> orderedFileNames = (ArrayList<String>) getIntent().getSerializableExtra("filenames");
         if(orderedFileNames != null && position > -1 && position < orderedFileNames.size()) {
             int lastSlashIndex = soleWebView.getUrl().lastIndexOf("/");
-            soleWebView.loadUrl(fixCharacters(soleWebView.getUrl().substring(0, lastSlashIndex) + "/" + orderedFileNames.get(position)));
+            soleWebView.loadUrl(soleWebView.getUrl().substring(0, lastSlashIndex) + "/" + fixCharacters(orderedFileNames.get(position)));
             localPageIndex = position;
+        } else {
+            Toast.makeText(BrowserActivity.this, "This is the " + (position <= -1 ? "first" : "last") + " file.", Toast.LENGTH_LONG).show();
         }
     }
 
