@@ -23,12 +23,19 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="content" android:host="*" android:pathPattern=".*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\.mhtml" android:mimeType="*/*" />
                 <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\.mhtml" android:mimeType="*/*" />
                 <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\.mhtml" android:mimeType="*/*" />
                 <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\.mhtml" android:mimeType="*/*" />
                 <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\.mhtml" android:mimeType="*/*" />
                 <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.mhtml" android:mimeType="*/*" />
                 <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.mht" android:mimeType="*/*" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.mhtml" android:mimeType="*/*" />
             </intent-filter>
         </activity>
         <activity android:name=".BrowserActivity" android:configChanges="orientation|screenSize|keyboardHidden">
