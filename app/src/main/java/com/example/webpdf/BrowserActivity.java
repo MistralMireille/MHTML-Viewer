@@ -53,6 +53,7 @@ public class BrowserActivity extends AppCompatActivity {
     MenuItem menuNextPage;
     MenuItem menuPreviousPage;
     HashMap<String, String> localFileMap;
+    ArrayList<String> filepaths;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,6 +161,7 @@ public class BrowserActivity extends AppCompatActivity {
                             builder.setPositiveButton("Load Local Version", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
+                                    localPageIndex = filepaths.indexOf(localFileMap.get(request.getUrl().toString()));
                                     view.getSettings().setAllowFileAccess(true);
                                     view.loadUrl("file:///" + fixCharacters(localFileMap.get(request.getUrl().toString())));
                                 }
@@ -188,6 +190,7 @@ public class BrowserActivity extends AppCompatActivity {
                         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
+
                                 view.getSettings().setAllowFileAccess(false);
                                 view.loadUrl(request.getUrl().toString());
                             }
@@ -250,6 +253,7 @@ public class BrowserActivity extends AppCompatActivity {
         if(intent.getStringExtra("local").equals("true")) {
             soleWebView.getSettings().setAllowFileAccess(true);
             localPageIndex = getIntent().getIntExtra("position", -1);
+            filepaths = (ArrayList<String>) getIntent().getSerializableExtra("filepaths");
         }
 
         if(intent.hasExtra("map")) {

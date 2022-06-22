@@ -364,6 +364,11 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
+        listValues.clear();
+        for(String s : listTitles) {
+            listValues.add(directoryPath + "/" + s);
+        }
+
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.list_entry, R.id.listEntryTitle, listTitles);
 
         mhtList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -378,6 +383,7 @@ public class MainActivity extends AppCompatActivity {
                 sendIntent.putExtra("local", "true");
                 sendIntent.putExtra("map", fileUrlToFileName);
                 sendIntent.putExtra("filenames", listTitles);
+                sendIntent.putExtra("filepaths", listValues);
                 sendIntent.putExtra("position", position);
                 startActivity(sendIntent);
             }
