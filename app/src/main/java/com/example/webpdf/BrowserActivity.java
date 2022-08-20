@@ -250,7 +250,7 @@ public class BrowserActivity extends AppCompatActivity {
         String address = intent.getStringExtra("address");
         urlEditText.setText(address);
 
-        if(intent.getStringExtra("local").equals("true")) {
+        if(intent.hasExtra("local") && intent.getStringExtra("local").equals("true")) {
             soleWebView.getSettings().setAllowFileAccess(true);
             localPageIndex = getIntent().getIntExtra("position", -1);
             filepaths = (ArrayList<String>) getIntent().getSerializableExtra("filepaths");
