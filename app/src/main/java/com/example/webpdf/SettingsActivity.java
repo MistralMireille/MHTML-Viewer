@@ -2,20 +2,24 @@ package com.example.webpdf;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.File;
+import java.util.ArrayList;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -45,16 +49,28 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
-                final EditText input = new EditText(SettingsActivity.this);
-                input.setText(((TextView) settingsDefaultCrawlerFolder.getChildAt(1)).getText());
-                builder.setView(input);
-                builder.setTitle("Type the path of the folder:");
-                builder.setMessage("This folder and its sub-folders will populate the list of directories if they contain an mhtml file.");
+
+                LinearLayout fileBrowserLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.file_browser, null);
+                populateFileBrowser(fileBrowserLayout, getSharedPreferences("settings", MODE_PRIVATE).getString("defaultCrawlerFolder", "/storage/emulated/0/Download"));
+                ImageButton folderBackButton = fileBrowserLayout.findViewById(R.id.fileBrowserBackButton);
+                folderBackButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String currentPath = ((EditText) fileBrowserLayout.findViewById(R.id.fileBrowserPathEditText)).getText().toString();
+
+                        File subFolder = new File(currentPath.substring(0, currentPath.lastIndexOf("/")));
+                        if(subFolder.canRead()) {
+                            populateFileBrowser(fileBrowserLayout, subFolder.getAbsolutePath());
+                        }
+                    }
+                });
+                builder.setView(fileBrowserLayout);
+
 
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        File directory = new File(input.getText().toString());
+                        File directory = new File(((EditText) fileBrowserLayout.findViewById(R.id.fileBrowserPathEditText)).getText().toString());
                         if(directory.exists()) {
                             getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultCrawlerFolder", directory.getAbsolutePath()).apply();
                             ((TextView) settingsDefaultCrawlerFolder.getChildAt(1)).setText(directory.getAbsolutePath());
@@ -78,16 +94,27 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
-                final EditText input = new EditText(SettingsActivity.this);
-                builder.setView(input);
-                input.setText(((TextView) settingsDefaultSaveLocationFolder.getChildAt(1)).getText());
-                builder.setTitle("Type the path of the folder:");
-                builder.setMessage("Determines where the mhtml file will be saved from pressing \"Save Page\" in the browser.");
+
+                LinearLayout fileBrowserLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.file_browser, null);
+                populateFileBrowser(fileBrowserLayout, getSharedPreferences("settings", MODE_PRIVATE).getString("defaultSaveLocationFolder", "/storage/emulated/0/Download"));
+                ImageButton folderBackButton = fileBrowserLayout.findViewById(R.id.fileBrowserBackButton);
+                folderBackButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String currentPath = ((EditText) fileBrowserLayout.findViewById(R.id.fileBrowserPathEditText)).getText().toString();
+
+                        File subFolder = new File(currentPath.substring(0, currentPath.lastIndexOf("/")));
+                        if(subFolder.canRead()) {
+                            populateFileBrowser(fileBrowserLayout, subFolder.getAbsolutePath());
+                        }
+                    }
+                });
+                builder.setView(fileBrowserLayout);
 
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        File directory = new File(input.getText().toString());
+                        File directory = new File(((EditText) fileBrowserLayout.findViewById(R.id.fileBrowserPathEditText)).getText().toString());
                         if(directory.exists()) {
                             getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultSaveLocationFolder", directory.getAbsolutePath()).apply();
                             ((TextView) settingsDefaultSaveLocationFolder.getChildAt(1)).setText(directory.getAbsolutePath());
@@ -181,6 +208,46 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    public void populateFileBrowser(LinearLayout fileBrowserLayout, String path) {
+        LinearLayout folderList = fileBrowserLayout.findViewById(R.id.fileBrowserLinearLayout);
+        folderList.removeAllViews();
+
+        EditText pathEditText = fileBrowserLayout.findViewById(R.id.fileBrowserPathEditText);
+        pathEditText.setText(path);
+        pathEditText.setSelection(pathEditText.getText().length());
+
+        for(File f : listFolders(path)) {
+            Button b = new Button(this);
+            b.setText(f.getName());
+            b.isClickable();
+            b.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            b.setBackground(Drawable.createFromPath("@android:color/transparent"));
+            b.setGravity(Gravity.LEFT|Gravity.CENTER_HORIZONTAL);
+            b.setPadding(10, b.getPaddingTop(), b.getPaddingRight(), b.getPaddingBottom());
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    populateFileBrowser(fileBrowserLayout, f.getAbsolutePath());
+                }
+            });
+            folderList.addView(b);
+        }
+    }
+
+    public ArrayList<File> listFolders(String path) {
+        ArrayList<File> allFolders = new ArrayList<>();
+
+        File directory = new File(path);
+        if(directory.exists() && directory.isDirectory()) {
+            for(File f : directory.listFiles()) {
+                if(f.isDirectory()) {
+                    allFolders.add(f);
+                }
+            }
+        }
+        return allFolders;
     }
 
     @Override
