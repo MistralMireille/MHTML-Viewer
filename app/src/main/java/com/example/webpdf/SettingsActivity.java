@@ -48,29 +48,10 @@ public class SettingsActivity extends AppCompatActivity {
         settingsDefaultCrawlerFolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
-
-                LinearLayout fileBrowserLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.file_browser, null);
-                populateFileBrowser(fileBrowserLayout, getSharedPreferences("settings", MODE_PRIVATE).getString("defaultCrawlerFolder", "/storage/emulated/0/Download"));
-                ImageButton folderBackButton = fileBrowserLayout.findViewById(R.id.fileBrowserBackButton);
-                folderBackButton.setOnClickListener(new View.OnClickListener() {
+                showFileBrowserDialog(getSharedPreferences("settings", MODE_PRIVATE).getString("defaultCrawlerFolder", "/storage/emulated/0/Download"), new FileBrowserResultFunctions() {
                     @Override
-                    public void onClick(View view) {
-                        String currentPath = ((EditText) fileBrowserLayout.findViewById(R.id.fileBrowserPathEditText)).getText().toString();
-
-                        File subFolder = new File(currentPath.substring(0, currentPath.lastIndexOf("/")));
-                        if(subFolder.canRead()) {
-                            populateFileBrowser(fileBrowserLayout, subFolder.getAbsolutePath());
-                        }
-                    }
-                });
-                builder.setView(fileBrowserLayout);
-
-
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        File directory = new File(((EditText) fileBrowserLayout.findViewById(R.id.fileBrowserPathEditText)).getText().toString());
+                    public void confirmFunction(String resultingPath) {
+                        File directory  = new File(resultingPath);
                         if(directory.exists()) {
                             getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultCrawlerFolder", directory.getAbsolutePath()).apply();
                             ((TextView) settingsDefaultCrawlerFolder.getChildAt(1)).setText(directory.getAbsolutePath());
@@ -78,14 +59,12 @@ public class SettingsActivity extends AppCompatActivity {
                             Toast.makeText(SettingsActivity.this, "The folder does not exist.", Toast.LENGTH_LONG).show();
                         }
                     }
-                });
-                builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing.
+                    public void cancelFunction() {
+                        // do nothing
                     }
                 });
-                builder.show();
             }
         });
 
@@ -93,28 +72,10 @@ public class SettingsActivity extends AppCompatActivity {
         settingsDefaultSaveLocationFolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
-
-                LinearLayout fileBrowserLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.file_browser, null);
-                populateFileBrowser(fileBrowserLayout, getSharedPreferences("settings", MODE_PRIVATE).getString("defaultSaveLocationFolder", "/storage/emulated/0/Download"));
-                ImageButton folderBackButton = fileBrowserLayout.findViewById(R.id.fileBrowserBackButton);
-                folderBackButton.setOnClickListener(new View.OnClickListener() {
+                showFileBrowserDialog(getSharedPreferences("settings", MODE_PRIVATE).getString("defaultSaveLocationFolder", "/storage/emulated/0/Download"), new FileBrowserResultFunctions() {
                     @Override
-                    public void onClick(View view) {
-                        String currentPath = ((EditText) fileBrowserLayout.findViewById(R.id.fileBrowserPathEditText)).getText().toString();
-
-                        File subFolder = new File(currentPath.substring(0, currentPath.lastIndexOf("/")));
-                        if(subFolder.canRead()) {
-                            populateFileBrowser(fileBrowserLayout, subFolder.getAbsolutePath());
-                        }
-                    }
-                });
-                builder.setView(fileBrowserLayout);
-
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        File directory = new File(((EditText) fileBrowserLayout.findViewById(R.id.fileBrowserPathEditText)).getText().toString());
+                    public void confirmFunction(String resultingPath) {
+                        File directory  = new File(resultingPath);
                         if(directory.exists()) {
                             getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultSaveLocationFolder", directory.getAbsolutePath()).apply();
                             ((TextView) settingsDefaultSaveLocationFolder.getChildAt(1)).setText(directory.getAbsolutePath());
@@ -122,14 +83,12 @@ public class SettingsActivity extends AppCompatActivity {
                             Toast.makeText(SettingsActivity.this, "The folder does not exist.", Toast.LENGTH_LONG).show();
                         }
                     }
-                });
-                builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing.
+                    public void cancelFunction() {
+                        // do nothing
                     }
                 });
-                builder.show();
             }
         });
 
@@ -206,8 +165,53 @@ public class SettingsActivity extends AppCompatActivity {
                 builder.show();
             }
         });
+    }
 
+    interface FileBrowserResultFunctions {
+        void confirmFunction(String resultingPath);
+        void cancelFunction();
+    }
 
+    /**
+     * Given a startingDirectoryPath, opens a dialog that allows the user to browser the folders in the file system. When the user clicks OK to end
+     * the dialog, the method onConfirm.confirmFunction(String) will be called where the String parameter is the value of the EditText at the top.
+     * If the user clicks cancel the method onConfirm.cancelFunction will be called.
+     * @param startingDirectoryPath - The path to open the file browser dialog at.
+     * @param onConfirm - A FileBrowserResultFunctions object that determines what happens when the alertdialog is confirmed or cancelled.
+     */
+    public void showFileBrowserDialog(String startingDirectoryPath, FileBrowserResultFunctions onConfirm) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+
+        LinearLayout fileBrowserLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.file_browser, null);
+        populateFileBrowser(fileBrowserLayout, startingDirectoryPath);
+        ImageButton folderBackButton = fileBrowserLayout.findViewById(R.id.fileBrowserBackButton);
+        folderBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String currentPath = ((EditText) fileBrowserLayout.findViewById(R.id.fileBrowserPathEditText)).getText().toString();
+
+                File subFolder = new File(currentPath.substring(0, currentPath.lastIndexOf("/")));
+                if(subFolder.canRead()) {
+                    populateFileBrowser(fileBrowserLayout, subFolder.getAbsolutePath());
+                }
+            }
+        });
+        builder.setView(fileBrowserLayout);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String resultingPath = ((EditText) fileBrowserLayout.findViewById(R.id.fileBrowserPathEditText)).getText().toString();
+                onConfirm.confirmFunction(resultingPath);
+            }
+        });
+        builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                onConfirm.cancelFunction();
+            }
+        });
+        builder.show();
     }
 
     public void populateFileBrowser(LinearLayout fileBrowserLayout, String path) {
