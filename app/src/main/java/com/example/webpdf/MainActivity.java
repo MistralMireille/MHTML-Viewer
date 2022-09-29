@@ -116,7 +116,15 @@ public class MainActivity extends AppCompatActivity {
 
         File defaultFolder = new File(getSharedPreferences("settings", MODE_PRIVATE).getString("defaultCrawlerFolder", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()));
         ArrayList<String> crawlerPaths = new ArrayList<>();
-        addFilesCrawler(crawlerPaths, defaultFolder);
+
+        try {
+            addFilesCrawler(crawlerPaths, defaultFolder);
+        } catch(NullPointerException e) {
+            // When this function tries to handle /storage/emulated, it fails and throws a NullPointerException. We fix it by resetting the crawler folder.
+            getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultCrawlerFolder", "storage/emulated/0/").apply();
+            addFilesCrawler(crawlerPaths, new File(getSharedPreferences("settings", MODE_PRIVATE).getString("defaultCrawlerFolder", "storage/emulated/0/")));
+        }
+
         HashSet<File> crawlerFolders = new HashSet<>(); // put in a hashset to ensure no duplicate folders
 
         for(String s : crawlerPaths) {
@@ -162,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void addFilesCrawler(ArrayList<String> al, File directory) {
+    private void addFilesCrawler(ArrayList<String> al, File directory) throws NullPointerException {
         if(directory.exists() && directory.isDirectory()) {
             for(File f : directory.listFiles()) {
                 if(f.isDirectory()) {

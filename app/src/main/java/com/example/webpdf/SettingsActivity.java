@@ -52,11 +52,11 @@ public class SettingsActivity extends AppCompatActivity {
                     @Override
                     public void confirmFunction(String resultingPath) {
                         File directory  = new File(resultingPath);
-                        if(directory.exists()) {
+                        if(directory.exists() && directory.canRead() && directory.canWrite()) {
                             getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultCrawlerFolder", directory.getAbsolutePath()).apply();
                             ((TextView) settingsDefaultCrawlerFolder.getChildAt(1)).setText(directory.getAbsolutePath());
                         } else {
-                            Toast.makeText(SettingsActivity.this, "The folder does not exist.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(SettingsActivity.this, "The folder does not exist or we do not have permission to read or write to it (ie cannot write /storage).", Toast.LENGTH_LONG).show();
                         }
                     }
 
@@ -76,11 +76,11 @@ public class SettingsActivity extends AppCompatActivity {
                     @Override
                     public void confirmFunction(String resultingPath) {
                         File directory  = new File(resultingPath);
-                        if(directory.exists()) {
+                        if(directory.exists() && directory.canRead() && directory.canWrite()) {
                             getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultSaveLocationFolder", directory.getAbsolutePath()).apply();
                             ((TextView) settingsDefaultSaveLocationFolder.getChildAt(1)).setText(directory.getAbsolutePath());
                         } else {
-                            Toast.makeText(SettingsActivity.this, "The folder does not exist.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(SettingsActivity.this, "The folder does not exist or we do not have permission to read or write to it (ie cannot write to /storage).", Toast.LENGTH_LONG).show();
                         }
                     }
 
