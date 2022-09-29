@@ -509,6 +509,18 @@ public class MainActivity extends AppCompatActivity {
                 sendIntent.putExtra("local", "false");
                 startActivity(sendIntent);
                 return true;
+            case R.id.menuDownloadHere:
+                String downloadFolderChangedText = "Files saved in the browser will now save to the folder: ";
+                if(currentDirectory.equals("")) {
+                    String currentCrawlerFolder = getSharedPreferences("settings", MODE_PRIVATE).getString("defaultCrawlerFolder", "/storage/emulated/0/");
+                    getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultSaveLocationFolder", currentCrawlerFolder).apply();
+                    downloadFolderChangedText += currentCrawlerFolder;
+                } else {
+                    getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultSaveLocationFolder", currentDirectory).apply();
+                    downloadFolderChangedText += currentDirectory;
+                }
+                Toast.makeText(MainActivity.this, downloadFolderChangedText, Toast.LENGTH_LONG).show();
+                return true;
             case R.id.menuSettings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
