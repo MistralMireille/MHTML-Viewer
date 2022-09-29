@@ -121,8 +121,8 @@ public class MainActivity extends AppCompatActivity {
             addFilesCrawler(crawlerPaths, defaultFolder);
         } catch(NullPointerException e) {
             // When this function tries to handle /storage/emulated, it fails and throws a NullPointerException. We fix it by resetting the crawler folder.
-            getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultCrawlerFolder", "storage/emulated/0/").apply();
-            addFilesCrawler(crawlerPaths, new File(getSharedPreferences("settings", MODE_PRIVATE).getString("defaultCrawlerFolder", "storage/emulated/0/")));
+            getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultCrawlerFolder", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()).apply();
+            addFilesCrawler(crawlerPaths, new File(getSharedPreferences("settings", MODE_PRIVATE).getString("defaultCrawlerFolder", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath())));
         }
 
         HashSet<File> crawlerFolders = new HashSet<>(); // put in a hashset to ensure no duplicate folders
@@ -512,7 +512,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menuDownloadHere:
                 String downloadFolderChangedText = "Files saved in the browser will now save to the folder: ";
                 if(currentDirectory.equals("")) {
-                    String currentCrawlerFolder = getSharedPreferences("settings", MODE_PRIVATE).getString("defaultCrawlerFolder", "/storage/emulated/0/");
+                    String currentCrawlerFolder = getSharedPreferences("settings", MODE_PRIVATE).getString("defaultCrawlerFolder", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
                     getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultSaveLocationFolder", currentCrawlerFolder).apply();
                     downloadFolderChangedText += currentCrawlerFolder;
                 } else {
