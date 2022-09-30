@@ -24,7 +24,9 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebStorage;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,11 +34,9 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
@@ -52,6 +52,7 @@ public class BrowserActivity extends AppCompatActivity {
     MenuItem menuRemoveElements;
     MenuItem menuNextPage;
     MenuItem menuPreviousPage;
+    LinearLayout findTextBox;
     HashMap<String, String> localFileMap;
     ArrayList<String> filepaths;
 
@@ -78,6 +79,24 @@ public class BrowserActivity extends AppCompatActivity {
         soleWebView = findViewById(R.id.soleWebView);
         toolbarMenu = findViewById(R.id.toolbarMenu);
         urlEditText = findViewById(R.id.urlEditText);
+
+        findTextBox = findViewById(R.id.browserFindTextBox);
+
+        ((EditText) findTextBox.getChildAt(0)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                soleWebView.findAllAsync(textView.getText().toString());
+                return false;
+            }
+        });
+        TextView findTextSearchCount = (TextView) findTextBox.getChildAt(1);
+        ((Button) findTextBox.getChildAt(2)).setOnClickListener((View v) -> {
+            soleWebView.findNext(false);
+        });
+        ((Button) findTextBox.getChildAt(3)).setOnClickListener((View v) -> {
+            soleWebView.findNext(true);
+        });
+
         preserveUrl = "";
 
         soleWebView.getSettings().setJavaScriptEnabled(true);
@@ -93,6 +112,14 @@ public class BrowserActivity extends AppCompatActivity {
         soleWebView.getSettings().setUserAgentString(soleWebView.getSettings().getUserAgentString().replace("; wv", "")); // android studio developer pages 403 when they see it's a webview. It checks for wv to see if it's a webview, so I got rid of it.
 
         soleWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+
+        soleWebView.setFindListener(new WebView.FindListener() {
+            @Override
+            public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches, boolean isDoneCounting) {
+                Toast.makeText(BrowserActivity.this, activeMatchOrdinal + " " + numberOfMatches + " " + isDoneCounting, Toast.LENGTH_LONG).show();
+                findTextSearchCount.setText(activeMatchOrdinal + "/" + numberOfMatches);
+            }
+        });
 
         soleWebView.setWebViewClient(new WebViewClient() {
 
@@ -389,6 +416,18 @@ public class BrowserActivity extends AppCompatActivity {
                 return true;
             case R.id.menuHide:
                 toolbarMenu.setVisibility(View.GONE);
+                return true;
+            case R.id.menuFind:
+                if(item.getTitle().equals("Find in Page")) {
+                    item.setTitle("Cancel Find");
+                    findTextBox.setVisibility(View.VISIBLE);
+                } else {
+                    item.setTitle("Find in Page");
+                    ((EditText) findTextBox.getChildAt(0)).setText("");
+                    ((TextView) findTextBox.getChildAt(1)).setText("");
+                    findTextBox.setVisibility(View.GONE);
+                    soleWebView.clearMatches();
+                }
                 return true;
             case R.id.menuRemoveElements:
                 if(item.getTitle().equals("Remove Elements")) {

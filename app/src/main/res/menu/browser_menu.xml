@@ -12,6 +12,10 @@
         android:title="Hide Menu"
         app:showAsAction="never"/>
     <item
+        android:id="@+id/menuFind"
+        android:title="Find in Page"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/menuRemoveElements"
         android:title="Remove Elements"
         android:visible="false"

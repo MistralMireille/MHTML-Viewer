@@ -33,9 +33,46 @@
         </LinearLayout>
     </android.support.v7.widget.Toolbar>
 
-    <WebView
-        android:id="@+id/soleWebView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></WebView>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <WebView
+            android:id="@+id/soleWebView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+        </WebView>
+
+        <LinearLayout
+            android:id="@+id/browserFindTextBox"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:inputType="text"
+                android:imeOptions="actionSend"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="left|center"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Prev"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Next"/>
+        </LinearLayout>
+
+    </LinearLayout>
 </LinearLayout>
