@@ -116,7 +116,6 @@ public class BrowserActivity extends AppCompatActivity {
         soleWebView.setFindListener(new WebView.FindListener() {
             @Override
             public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches, boolean isDoneCounting) {
-                Toast.makeText(BrowserActivity.this, activeMatchOrdinal + " " + numberOfMatches + " " + isDoneCounting, Toast.LENGTH_LONG).show();
                 findTextSearchCount.setText(activeMatchOrdinal + "/" + numberOfMatches);
             }
         });
