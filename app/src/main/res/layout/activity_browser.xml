@@ -72,6 +72,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="Next"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:text="  X  "
+                android:textSize="25dp"
+                android:gravity="center"/>
         </LinearLayout>
 
     </LinearLayout>

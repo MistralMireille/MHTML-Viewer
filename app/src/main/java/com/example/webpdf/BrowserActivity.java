@@ -52,9 +52,12 @@ public class BrowserActivity extends AppCompatActivity {
     MenuItem menuRemoveElements;
     MenuItem menuNextPage;
     MenuItem menuPreviousPage;
+    MenuItem menuFindText;
+    String searchString;
     LinearLayout findTextBox;
     HashMap<String, String> localFileMap;
     ArrayList<String> filepaths;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,19 +85,32 @@ public class BrowserActivity extends AppCompatActivity {
 
         findTextBox = findViewById(R.id.browserFindTextBox);
 
-        ((EditText) findTextBox.getChildAt(0)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                soleWebView.findAllAsync(textView.getText().toString());
-                return false;
-            }
+        searchString = "";
+        EditText findTextBoxEntry = (EditText) findTextBox.getChildAt(0);
+        findTextBoxEntry.setOnEditorActionListener((TextView textView, int i, KeyEvent keyEvent) -> {
+            searchString = textView.getText().toString();
+            soleWebView.findAllAsync(textView.getText().toString());
+            return false;
         });
         TextView findTextSearchCount = (TextView) findTextBox.getChildAt(1);
         ((Button) findTextBox.getChildAt(2)).setOnClickListener((View v) -> {
-            soleWebView.findNext(false);
+            if(!findTextBoxEntry.getText().toString().equals(searchString)) {
+                searchString = findTextBoxEntry.getText().toString();
+                soleWebView.findAllAsync(searchString);
+            } else {
+                soleWebView.findNext(false);
+            }
         });
         ((Button) findTextBox.getChildAt(3)).setOnClickListener((View v) -> {
-            soleWebView.findNext(true);
+            if(!findTextBoxEntry.getText().toString().equals(searchString)) {
+                searchString = findTextBoxEntry.getText().toString();
+                soleWebView.findAllAsync(searchString);
+            } else {
+                soleWebView.findNext(true);
+            }
+        });
+        ((TextView) findTextBox.getChildAt(4)).setOnClickListener((View v) -> {
+            onOptionsItemSelected(menuFindText);
         });
 
         preserveUrl = "";
@@ -116,7 +132,7 @@ public class BrowserActivity extends AppCompatActivity {
         soleWebView.setFindListener(new WebView.FindListener() {
             @Override
             public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches, boolean isDoneCounting) {
-                findTextSearchCount.setText(activeMatchOrdinal + "/" + numberOfMatches);
+                findTextSearchCount.setText((numberOfMatches == 0 ? 0 : activeMatchOrdinal + 1) + "/" + numberOfMatches);
             }
         });
 
@@ -313,6 +329,8 @@ public class BrowserActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.browser_menu, menu);
 
+        menuFindText = menu.findItem(R.id.menuFind);
+
         menuSavePage = menu.findItem(R.id.menuSavePage);
         menuRemoveElements = menu.findItem(R.id.menuRemoveElements);
         menuNextPage = menu.findItem(R.id.menuNextPage);
@@ -424,6 +442,7 @@ public class BrowserActivity extends AppCompatActivity {
                     item.setTitle("Find in Page");
                     ((EditText) findTextBox.getChildAt(0)).setText("");
                     ((TextView) findTextBox.getChildAt(1)).setText("");
+                    searchString = "";
                     findTextBox.setVisibility(View.GONE);
                     soleWebView.clearMatches();
                 }
