@@ -18,4 +18,6 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="DarkMaybe" parent="Theme.AppCompat.NoActionBar"></style>
+
 </resources>

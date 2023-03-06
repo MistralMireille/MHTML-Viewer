@@ -28,11 +28,14 @@ public class SettingsActivity extends AppCompatActivity {
     LinearLayout settingsDefaultSaveLocationFolder;
     LinearLayout settingsSortMethod;
     LinearLayout settingsLocalLinkBehavior;
+    LinearLayout settingsTheme;
     Toolbar toolbarMenu;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        updateThemeFromSharedPreferences();
 
         setContentView(R.layout.activity_settings);
 
@@ -41,6 +44,7 @@ public class SettingsActivity extends AppCompatActivity {
         settingsDefaultSaveLocationFolder = findViewById(R.id.settingsDefaultSaveLocationFolder);
         settingsSortMethod = findViewById(R.id.settingsSortMethod);
         settingsLocalLinkBehavior = findViewById(R.id.settingsLocalLinkBehavior);
+        settingsTheme = findViewById(R.id.settingsTheme);
 
         setSupportActionBar(toolbarMenu);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -166,6 +170,62 @@ public class SettingsActivity extends AppCompatActivity {
                 builder.show();
             }
         });
+
+        ((TextView) settingsTheme.getChildAt(1)).setText(getSharedPreferences("settings", MODE_PRIVATE).getString("defaultTheme", "Default"));
+        settingsTheme.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+                final RadioGroup input = new RadioGroup(SettingsActivity.this);
+                String[] themes = new String[]{"Default", "Dark"};
+                for(String s : themes) {
+                    RadioButton option = new RadioButton(SettingsActivity.this);
+                    option.setText(s);
+                    input.addView(option);
+                }
+                builder.setView(input);
+                builder.setTitle("Change how the app looks:");
+
+                builder.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        RadioButton selectedButton = input.findViewById(input.getCheckedRadioButtonId());
+                        if(selectedButton != null) {
+                            Toast.makeText(SettingsActivity.this, "Requires an app restart.", Toast.LENGTH_LONG).show();
+                            getSharedPreferences("settings", MODE_PRIVATE).edit().putString("defaultTheme", selectedButton.getText().toString()).apply();
+                            ((TextView) settingsTheme.getChildAt(1)).setText(selectedButton.getText());
+
+                            updateThemeFromSharedPreferences();
+                        }
+                    }
+                });
+                builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do nothing.
+                    }
+                });
+
+                builder.show();
+            }
+        });
+    }
+
+    /**
+     * Reads from sharedpreferences to set the theme.
+     */
+    private void updateThemeFromSharedPreferences() {
+        switch(getSharedPreferences("settings", MODE_PRIVATE).getString("defaultTheme", "Default")) {
+            case "Default":
+                SettingsActivity.this.setTheme(R.style.TestingTheme);
+                break;
+            case "Dark":
+                SettingsActivity.this.setTheme(R.style.DarkMaybe);
+                break;
+            default:
+                Toast.makeText(SettingsActivity.this, "Something went wrong with setting a theme. No such theme: " + getSharedPreferences("settings", MODE_PRIVATE).getString("defaultTheme", "Default"), Toast.LENGTH_LONG).show();
+                break;
+        }
     }
 
     interface FileBrowserResultFunctions {
@@ -180,7 +240,7 @@ public class SettingsActivity extends AppCompatActivity {
      * @param startingDirectoryPath - The path to open the file browser dialog at.
      * @param onConfirm - A FileBrowserResultFunctions object that determines what happens when the alertdialog is confirmed or cancelled.
      */
-    public void showFileBrowserDialog(String startingDirectoryPath, FileBrowserResultFunctions onConfirm) {
+    private void showFileBrowserDialog(String startingDirectoryPath, FileBrowserResultFunctions onConfirm) {
         AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
 
         LinearLayout fileBrowserLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.file_browser, null);
@@ -215,7 +275,7 @@ public class SettingsActivity extends AppCompatActivity {
         builder.show();
     }
 
-    public void populateFileBrowser(LinearLayout fileBrowserLayout, String path) {
+    private void populateFileBrowser(LinearLayout fileBrowserLayout, String path) {
         LinearLayout folderList = fileBrowserLayout.findViewById(R.id.fileBrowserLinearLayout);
         folderList.removeAllViews();
 
@@ -241,7 +301,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    public ArrayList<File> listFolders(String path) {
+    private ArrayList<File> listFolders(String path) {
         ArrayList<File> allFolders = new ArrayList<>();
 
         File directory = new File(path);

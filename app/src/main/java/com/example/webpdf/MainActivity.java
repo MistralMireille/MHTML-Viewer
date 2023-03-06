@@ -57,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
+        updateThemeFromSharedPreferences();
+
         setContentView(R.layout.activity_main);
 
         getSharedPreferences("settings", MODE_PRIVATE).edit().putString("updateNeeded", "none").apply();
@@ -108,6 +110,23 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "Could not find the file at: " + path, Toast.LENGTH_LONG).show();
             }
+        }
+    }
+
+    /**
+     * Reads from sharedpreferences to set the theme.
+     */
+    private void updateThemeFromSharedPreferences() {
+        switch(getSharedPreferences("settings", MODE_PRIVATE).getString("defaultTheme", "Default")) {
+            case "Default":
+                MainActivity.this.setTheme(R.style.TestingTheme);
+                break;
+            case "Dark":
+                MainActivity.this.setTheme(R.style.DarkMaybe);
+                break;
+            default:
+                Toast.makeText(MainActivity.this, "Something went wrong with setting a theme. No such theme: " + getSharedPreferences("settings", MODE_PRIVATE).getString("defaultTheme", "Default"), Toast.LENGTH_LONG).show();
+                break;
         }
     }
 
