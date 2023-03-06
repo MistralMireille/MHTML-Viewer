@@ -31,7 +31,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Default Crawler Folder"
+            android:text="Crawler Folder"
             android:textSize="20dp"/>
         <TextView
             android:layout_width="match_parent"
@@ -58,7 +58,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Default Download Folder"
+            android:text="Download Folder"
             android:textSize="20dp"/>
         <TextView
             android:layout_width="match_parent"
