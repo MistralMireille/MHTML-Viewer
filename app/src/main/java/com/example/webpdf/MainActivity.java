@@ -1,12 +1,14 @@
 package com.example.webpdf;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -412,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
                 sendIntent.putExtra("filenames", listTitles);
                 sendIntent.putExtra("filepaths", listValues);
                 sendIntent.putExtra("position", position);
-                startActivity(sendIntent);
+                startActivityForResult(sendIntent, 1);
             }
         });
         mhtList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -546,6 +548,24 @@ public class MainActivity extends AppCompatActivity {
             default:
                return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            if(data != null && data.hasExtra("position")) {
+                int lastFilePosition = data.getIntExtra("position", -1);
+                if(!currentDirectory.equals("")) {
+                    mhtList.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mhtList.setSelection(lastFilePosition);
+                        }
+                    });
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

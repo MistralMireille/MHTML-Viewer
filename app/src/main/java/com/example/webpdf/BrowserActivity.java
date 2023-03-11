@@ -1,5 +1,6 @@
 package com.example.webpdf;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -408,6 +409,13 @@ public class BrowserActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case android.R.id.home:
+                Intent returnIntent = new Intent();
+                if(localPageIndex > -1) {
+                    returnIntent.putExtra("position", localPageIndex);
+                    setResult(Activity.RESULT_OK, returnIntent);
+                } else {
+                    setResult(Activity.RESULT_CANCELED);
+                }
                 this.finish();
                 return true;
             case R.id.menuSavePage:
