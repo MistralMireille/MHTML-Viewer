@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -57,6 +58,7 @@ public class BrowserActivity extends AppCompatActivity {
     String searchString;
     LinearLayout findTextBox;
     HashMap<String, String> localFileMap;
+    HashMap<String, Integer> localFilePageIndices;
     ArrayList<String> filepaths;
 
 
@@ -85,6 +87,8 @@ public class BrowserActivity extends AppCompatActivity {
         urlEditText = findViewById(R.id.urlEditText);
 
         findTextBox = findViewById(R.id.browserFindTextBox);
+
+        localFilePageIndices = new HashMap<>();
 
         searchString = "";
         EditText findTextBoxEntry = (EditText) findTextBox.getChildAt(0);
@@ -251,6 +255,17 @@ public class BrowserActivity extends AppCompatActivity {
                     view.getSettings().setAllowFileAccess(false);
                     return super.shouldOverrideUrlLoading(view, request);
                 }
+            }
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                if(url.startsWith("file://") && localFilePageIndices.containsKey(url)) {
+                    localPageIndex = localFilePageIndices.get(url);
+                } else if(url.startsWith("file://")) {
+                    localFilePageIndices.put(url, localPageIndex);
+                }
+
+                super.onPageStarted(view, url, favicon);
             }
         });
 
