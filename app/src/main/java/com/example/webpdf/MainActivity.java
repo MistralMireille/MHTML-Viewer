@@ -3,6 +3,7 @@ package com.example.webpdf;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,12 +15,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -29,6 +32,8 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -420,80 +425,129 @@ public class MainActivity extends AppCompatActivity {
         mhtList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Fix Blob Images");
-                builder.setMessage("Do you want to attempt to fix blob images? This will create a copy of the file.");
+                // TODO - Open a menu that lets you choose whether or not you want to delete/rename the file or fixBlobImages.
+                AlertDialog.Builder longClickDialog = new AlertDialog.Builder(MainActivity.this);
 
-                builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                String[] longClickDialogOptions = new String[]{"Delete File", "Fix Blob Images (Experimental)"};
+                longClickDialog.setTitle(parent.getItemAtPosition(position).toString());
+                longClickDialog.setItems(longClickDialogOptions, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String fileName = ((String) parent.getItemAtPosition(position));
-                        String newFileName = fileName.replaceFirst("(?i)\\.mhtm?l?$", "") + " Blob Fix";
-                        File filePath = new File(directoryPath + "/" + newFileName + ".mht");
-                        if(!filePath.exists()) {
-                            try {
-                                String[] blobReplacements = new String[]{"b(=\\r?\\n)lob:(http)", "bl(=\\r?\\n)ob:(http)", "blo(=\\r?\\n)b:(http)", "blob(=\\r?\\n):(http)", "blob:(=\\r?\\nhtt)(p)", "blob:(h=\\r?\\ntt)(p)", "blob:(ht=\\r?\\nt)(p)", "blob:(htt=\\r?\\n)(p)", "blob:(htt)(p)"};
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch(i) {
+                            case 0:
+                                File f = new File(directoryPath + "/" + parent.getItemAtPosition(position));
+                                if(f.exists()) {
+                                    AlertDialog.Builder confirmationDeleteDialog = new AlertDialog.Builder(MainActivity.this);
+                                    confirmationDeleteDialog.setTitle("Delete File");
+                                    confirmationDeleteDialog.setMessage("Are you sure you want to delete the file \"" + f.getAbsolutePath() + "\"?");
 
-                                InputStream fileData = new FileInputStream(new File(directoryPath + "/" + fileName));
-                                BufferedReader reader = new BufferedReader(new InputStreamReader(fileData));
-                                String line = reader.readLine();
+                                    confirmationDeleteDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            f.delete();
 
-                                boolean startOfFile = true;
-                                boolean endOfFile = false;
-                                String carryOverString = "";
-                                while(!endOfFile) {
-
-                                    StringBuilder tempString = new StringBuilder();
-                                    for(int i = 0; i < 20; i++) {
-                                        if(line != null) {
-                                            if(i == 0 && !startOfFile) { // it doesn't add the carryOverString if we're at the start of the file
-                                                tempString.append(carryOverString);
-                                                tempString.append("\r\n");
-                                            }
-                                            tempString.append(line);
-                                            tempString.append("\r\n");
-                                            line = reader.readLine();
-                                        } else {
-                                            endOfFile = true;
+                                            refreshMhtList();
                                         }
-                                    }
+                                    });
 
-                                    startOfFile = false;
+                                    confirmationDeleteDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            // do nothing
+                                        }
+                                    });
 
-                                    String replaceString = tempString.toString();
-                                    for(String s : blobReplacements) {
-                                        replaceString = replaceString.replaceAll(s, "$1$2");
-                                    }
-                                    if(!endOfFile) {
-                                        replaceString = replaceString.substring(0, replaceString.lastIndexOf("\r\n"));
-                                        carryOverString = replaceString.substring(replaceString.lastIndexOf("\r\n") + "\r\n".length());
-                                        replaceString = replaceString.substring(0, replaceString.lastIndexOf("\r\n") + "\r\n".length()); // [19 + 20n, 20 + 20n] combination has been handled, so we remove the 20 + 20n line so we can use it for [20 + 20n, 21 + 20n]
-                                    }
-                                    BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true));
-                                    writer.append(replaceString);
-                                    writer.close();
+                                    confirmationDeleteDialog.show();
                                 }
-                                populateListViewByDirectory(directoryPath);
-                            } catch(IOException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            Toast.makeText(MainActivity.this, "File with Blob Fix at the end already exists. Consider deleting it or renaming it.", Toast.LENGTH_LONG).show();
+                                break;
+                            case 1:
+                                fixBlobImages(parent, position, directoryPath);
+                                break;
+                            default:
+                                Toast.makeText(MainActivity.this, "Something went wrong. Switch Case was: " + i, Toast.LENGTH_LONG).show();
+                                break;
                         }
                     }
                 });
-                builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing.
-                    }
-                });
-                builder.show();
+
+                longClickDialog.show();
 
                 return true;
             }
         });
         mhtList.setAdapter(adapter);
+    }
+
+    private void fixBlobImages(AdapterView<?> parent, int position, String directoryPath) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Fix Blob Images");
+        builder.setMessage("Do you want to attempt to fix blob images? This will create a copy of the file.");
+
+        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String fileName = ((String) parent.getItemAtPosition(position));
+                String newFileName = fileName.replaceFirst("(?i)\\.mhtm?l?$", "") + " Blob Fix";
+                File filePath = new File(directoryPath + "/" + newFileName + ".mht");
+                if(!filePath.exists()) {
+                    try {
+                        String[] blobReplacements = new String[]{"b(=\\r?\\n)lob:(http)", "bl(=\\r?\\n)ob:(http)", "blo(=\\r?\\n)b:(http)", "blob(=\\r?\\n):(http)", "blob:(=\\r?\\nhtt)(p)", "blob:(h=\\r?\\ntt)(p)", "blob:(ht=\\r?\\nt)(p)", "blob:(htt=\\r?\\n)(p)", "blob:(htt)(p)"};
+
+                        InputStream fileData = new FileInputStream(new File(directoryPath + "/" + fileName));
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(fileData));
+                        String line = reader.readLine();
+
+                        boolean startOfFile = true;
+                        boolean endOfFile = false;
+                        String carryOverString = "";
+                        while(!endOfFile) {
+
+                            StringBuilder tempString = new StringBuilder();
+                            for(int i = 0; i < 20; i++) {
+                                if(line != null) {
+                                    if(i == 0 && !startOfFile) { // it doesn't add the carryOverString if we're at the start of the file
+                                        tempString.append(carryOverString);
+                                        tempString.append("\r\n");
+                                    }
+                                    tempString.append(line);
+                                    tempString.append("\r\n");
+                                    line = reader.readLine();
+                                } else {
+                                    endOfFile = true;
+                                }
+                            }
+
+                            startOfFile = false;
+
+                            String replaceString = tempString.toString();
+                            for(String s : blobReplacements) {
+                                replaceString = replaceString.replaceAll(s, "$1$2");
+                            }
+                            if(!endOfFile) {
+                                replaceString = replaceString.substring(0, replaceString.lastIndexOf("\r\n"));
+                                carryOverString = replaceString.substring(replaceString.lastIndexOf("\r\n") + "\r\n".length());
+                                replaceString = replaceString.substring(0, replaceString.lastIndexOf("\r\n") + "\r\n".length()); // [19 + 20n, 20 + 20n] combination has been handled, so we remove the 20 + 20n line so we can use it for [20 + 20n, 21 + 20n]
+                            }
+                            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true));
+                            writer.append(replaceString);
+                            writer.close();
+                        }
+                        populateListViewByDirectory(directoryPath);
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Toast.makeText(MainActivity.this, "File with Blob Fix at the end already exists. Consider deleting it or renaming it.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Do nothing.
+            }
+        });
+        builder.show();
     }
 
     @Override
@@ -568,19 +622,26 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    /**
+     * Refreshes the list of mhtml files if the currentDirectory is inside of a folder.
+     */
+    private void refreshMhtList() {
+        if(!currentDirectory.equals("")) {
+            File folder = new File(currentDirectory);
+            if(folder.exists() && folder.isDirectory()) {
+                populateListViewByDirectory(currentDirectory);
+            } else {
+                folderBackButton.callOnClick(); // if the folder doesn't exists anymore, we go back to the directories.
+            }
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
 
         if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            if(!currentDirectory.equals("")) {
-                File folder = new File(currentDirectory);
-                if(folder.exists() && folder.isDirectory()) {
-                    populateListViewByDirectory(currentDirectory);
-                } else {
-                    folderBackButton.callOnClick(); // if the folder doesn't exists anymore, we go back to the directories.
-                }
-            }
+            refreshMhtList();
             createFolders();
         }
     }

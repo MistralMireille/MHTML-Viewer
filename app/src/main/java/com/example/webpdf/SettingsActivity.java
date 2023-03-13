@@ -234,7 +234,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     /**
-     * Given a startingDirectoryPath, opens a dialog that allows the user to browser the folders in the file system. When the user clicks OK to end
+     * Given a startingDirectoryPath, opens a dialog that allows the user to browse the folders in the file system. When the user clicks OK to end
      * the dialog, the method onConfirm.confirmFunction(String) will be called where the String parameter is the value of the EditText at the top.
      * If the user clicks cancel the method onConfirm.cancelFunction will be called.
      * @param startingDirectoryPath - The path to open the file browser dialog at.
