@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -423,23 +424,23 @@ public class MainActivity extends AppCompatActivity {
                 // TODO - Open a menu that lets you choose whether or not you want to delete/rename the file or fixBlobImages.
                 AlertDialog.Builder longClickDialog = new AlertDialog.Builder(MainActivity.this);
 
-                String[] longClickDialogOptions = new String[]{"Delete File", "Fix Blob Images (Experimental)"};
+                String[] longClickDialogOptions = new String[]{"Delete File", "Rename File", "Fix Blob Images (Experimental)"};
                 longClickDialog.setTitle(parent.getItemAtPosition(position).toString());
                 longClickDialog.setItems(longClickDialogOptions, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         switch(i) {
                             case 0:
-                                File f = new File(directoryPath + "/" + parent.getItemAtPosition(position));
-                                if(f.exists()) {
+                                File fileToDelete = new File(directoryPath + "/" + parent.getItemAtPosition(position));
+                                if(fileToDelete.exists()) {
                                     AlertDialog.Builder confirmationDeleteDialog = new AlertDialog.Builder(MainActivity.this);
                                     confirmationDeleteDialog.setTitle("Delete File");
-                                    confirmationDeleteDialog.setMessage("Are you sure you want to delete the file \"" + f.getAbsolutePath() + "\"?");
+                                    confirmationDeleteDialog.setMessage("Are you sure you want to delete the file \"" + fileToDelete.getName() + "\"?");
 
                                     confirmationDeleteDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
-                                            f.delete();
+                                            fileToDelete.delete();
 
                                             refreshMhtList();
                                         }
@@ -456,6 +457,42 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 break;
                             case 1:
+                                File fileToRename = new File(directoryPath, (String) parent.getItemAtPosition(position));
+                                if(fileToRename.exists()) {
+                                    AlertDialog.Builder fileRenameDialog = new AlertDialog.Builder(MainActivity.this);
+                                    EditText input = new EditText(MainActivity.this);
+                                    fileRenameDialog.setView(input);
+                                    fileRenameDialog.setTitle("Set File Name");
+                                    fileRenameDialog.setMessage("Renaming " + fileToRename.getName());
+
+                                    fileRenameDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if(!input.getText().equals("")) {
+                                                String newFilePath = directoryPath + "/" + input.getText();
+                                                if(!newFilePath.toLowerCase().matches("\\.mhtm?l?$")) {
+                                                    newFilePath += ".mht";
+                                                }
+                                                fileToRename.renameTo(new File(newFilePath));
+
+                                                refreshMhtList();
+                                            } else {
+                                                Toast.makeText(MainActivity.this, "Failed to rename file.", Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+
+                                    fileRenameDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // nothing
+                                        }
+                                    });
+
+                                    fileRenameDialog.show();
+                                }
+                                break;
+                            case 2:
                                 fixBlobImages(parent, position, directoryPath);
                                 break;
                             default:
